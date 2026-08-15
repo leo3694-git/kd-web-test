@@ -1,0 +1,17 @@
+{
+  "name": "keydiy-clone",
+  "version": "1.0.0",
+  "description": "KeyDIY website clone with admin backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "scrape": "node scraper.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1"
+  }
+}

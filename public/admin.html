@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KEYDIY Admin Portal - Catalog Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Login Panel (Shown by default if not authenticated) -->
+  <div id="login-container" class="login-panel admin-card">
+    <div class="login-title">
+      <i class="fa-solid fa-user-shield highlight" style="font-size: 2.5rem; margin-bottom: 1rem; display: block;"></i>
+      KEYDIY Admin Login
+    </div>
+    <div id="login-error" class="error-message d-none"></div>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" class="form-control" placeholder="Enter admin username" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" class="form-control" placeholder="Enter admin password" required>
+      </div>
+      <button type="submit" class="btn-primary btn-block" style="margin-top: 1rem; padding: 0.75rem;">Log In</button>
+    </form>
+    <div style="text-align: center; margin-top: 1.5rem;">
+      <a href="/" style="font-size: 0.85rem; color: var(--text-secondary); text-decoration: underline;"><i class="fa-solid fa-arrow-left"></i> Back to Shop</a>
+    </div>
+  </div>
+
+  <!-- Admin Main Panel (Hidden by default, shown when logged in) -->
+  <div id="admin-container" class="admin-container d-none">
+    <header class="admin-header">
+      <div>
+        <h1><i class="fa-solid fa-gears highlight"></i> Admin Dashboard</h1>
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">Manage products, categories, prices, and upload images.</p>
+      </div>
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <a href="/" target="_blank" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+          <i class="fa-solid fa-eye"></i> View Shop
+        </a>
+        <button id="logout-btn" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-color: rgba(239, 68, 68, 0.3); color: var(--danger-color);">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="admin-tabs">
+      <button class="tab-btn active" id="tab-products">Products</button>
+      <button class="tab-btn" id="tab-categories">Categories</button>
+    </div>
+
+    <!-- Products Tab Content -->
+    <div id="content-products" class="tab-content">
+      <div class="admin-card">
+        <div class="admin-controls">
+          <div class="admin-search-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="admin-search" class="form-control admin-search-input" placeholder="Search products by title or description...">
+          </div>
+          <div class="admin-action-buttons">
+            <button id="btn-add-product" class="btn-primary">
+              <i class="fa-solid fa-plus"></i> Add Product
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width: 70px;">Image</th>
+                <th>Product Title</th>
+                <th style="width: 150px;">Category</th>
+                <th style="width: 110px;">Price</th>
+                <th style="width: 110px;">Orig. Price</th>
+                <th style="width: 100px; text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-products-tbody">
+              <!-- Products list loaded dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categories Tab Content -->
+    <div id="content-categories" class="tab-content d-none">
+      <div class="admin-card">
+        <div class="category-manager-grid">
+          <!-- Add Category Form -->
+          <div class="add-category-card">
+            <h3 style="font-family: var(--font-display); margin-bottom: 1rem;">Add New Category</h3>
+            <div id="category-error" class="error-message d-none" style="margin-bottom: 1rem;"></div>
+            <form id="add-category-form">
+              <div class="form-group">
+                <label for="new-category-name">Category Name</label>
+                <input type="text" id="new-category-name" class="form-control" placeholder="e.g. smart-key" required>
+              </div>
+              <button type="submit" class="btn-primary btn-block" style="margin-top: 0.5rem; padding: 0.65rem;">
+                <i class="fa-solid fa-plus"></i> Create Category
+              </button>
+            </form>
+          </div>
+
+          <!-- Categories List -->
+          <div>
+            <h3 style="font-family: var(--font-display); margin-bottom: 1rem;">Current Categories</h3>
+            <div class="category-tags-list" id="admin-categories-list">
+              <!-- Categories list loaded dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Product Modal -->
+  <div id="product-form-modal" class="modal d-none">
+    <div class="modal-overlay"></div>
+    <div class="modal-container" style="max-width: 900px;">
+      <button class="modal-close-btn" id="form-modal-close"><i class="fa-solid fa-xmark"></i></button>
+      
+      <div style="padding: 2rem;">
+        <h2 id="modal-form-title" style="font-family: var(--font-display); margin-bottom: 0.5rem;">Add Product</h2>
+        <div id="product-form-error" class="error-message d-none"></div>
+        
+        <form id="product-crud-form">
+          <input type="hidden" id="product-edit-id">
+          
+          <!-- Form Tabs Header -->
+          <div class="form-tabs" style="display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+            <button type="button" class="form-tab-btn active" data-form-tab="basic">基本信息 (Basic)</button>
+            <button type="button" class="form-tab-btn" data-form-tab="publish-shipping">發布與物流 (Logistics)</button>
+            <button type="button" class="form-tab-btn" data-form-tab="features">特徵與詳情 (Details)</button>
+            <button type="button" class="form-tab-btn" data-form-tab="seo-variations">SEO 與屬性 (SEO)</button>
+          </div>
+
+          <!-- TAB 1: BASIC INFO -->
+          <div class="form-tab-content-panel" id="form-tab-basic">
+            <div class="product-form-grid" style="margin-top: 0;">
+              <!-- Left inputs -->
+              <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div class="form-group">
+                  <label for="prod-title">產品名稱 (Product Name) *</label>
+                  <input type="text" id="prod-title" class="form-control" placeholder="輸入產品名稱" required>
+                </div>
+
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label for="prod-short-name">品名簡稱 (Short Name)</label>
+                    <input type="text" id="prod-short-name" class="form-control" placeholder="例如: XKHO20EN">
+                  </div>
+                  <div class="form-group">
+                    <label for="prod-sku">貨號 (SKU) *</label>
+                    <input type="text" id="prod-sku" class="form-control" placeholder="必須是唯一值" required>
+                  </div>
+                </div>
+
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label for="prod-internal-code">內部編號 (Internal Code)</label>
+                    <input type="text" id="prod-internal-code" class="form-control" placeholder="例如: SA1683-B">
+                  </div>
+                  <div class="form-group">
+                    <label for="prod-brand">品牌 (Brand)</label>
+                    <select id="prod-brand" class="form-control" style="background-color: var(--bg-tertiary);">
+                      <option value="KeyDIY">KeyDIY</option>
+                      <option value="Xhorse">Xhorse</option>
+                      <option value="Autel">Autel</option>
+                      <option value="KD">KD</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label for="prod-category">產品類別 (Category)</label>
+                    <select id="prod-category" class="form-control" style="background-color: var(--bg-tertiary);">
+                      <!-- Dynamic categories loaded here -->
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="prod-subcategory">二級類別 (Subcategory)</label>
+                    <input type="text" id="prod-subcategory" class="form-control" placeholder="輸入二級類別 (如無請留空)">
+                  </div>
+                </div>
+
+                <div class="form-grid-3">
+                  <div class="form-group">
+                    <label for="prod-price">現價 (Current Price in EUR) *</label>
+                    <input type="number" id="prod-price" class="form-control" placeholder="現價" step="0.01" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="prod-original-price">原價 (Original Price)</label>
+                    <input type="number" id="prod-original-price" class="form-control" placeholder="原價" step="0.01">
+                  </div>
+                  <div class="form-group">
+                    <label for="prod-unit">單位 (Unit)</label>
+                    <select id="prod-unit" class="form-control" style="background-color: var(--bg-tertiary);">
+                      <option value="pcs">個 (pcs)</option>
+                      <option value="lot">包/套 (lot)</option>
+                      <option value="box">盒 (box)</option>
+                      <option value="set">組 (set)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="prod-price-mode">定價模式 (Pricing Mode)</label>
+                  <select id="prod-price-mode" class="form-control" style="background-color: var(--bg-tertiary);">
+                    <option value="fixed">固定價格 (Fixed Price)</option>
+                    <option value="tiered-time">階梯價：按時段</option>
+                    <option value="tiered-qty">階梯價：按數量</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Right inputs (Image Upload) -->
+              <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div class="form-group">
+                  <label>產品圖片 (Product Image)</label>
+                  
+                  <input type="file" id="prod-image-file" accept="image/*" class="d-none">
+                  
+                  <div class="image-upload-area" id="image-upload-area" style="min-height: 280px;">
+                    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                    <span id="upload-prompt">點擊上傳圖片 (Click to Upload)</span>
+                    <img id="upload-preview-img" class="image-preview d-none" src="" alt="Preview">
+                  </div>
+                  
+                  <div style="margin-top: 1rem;">
+                    <label for="prod-image-url" style="font-size: 0.8rem; margin-bottom: 0.25rem; display: block;">圖片路徑/連結 (Image URL)</label>
+                    <input type="text" id="prod-image-url" class="form-control" placeholder="/uploads/placeholder.jpg">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: PUBLISH & SHIPPING -->
+          <div class="form-tab-content-panel d-none" id="form-tab-publish-shipping">
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+              <div class="form-group">
+                <label>發布屬性設定 (Publish Settings)</label>
+                <div class="form-checkbox-group">
+                  <label class="checkbox-inline">
+                    <input type="checkbox" id="prod-publish-status" checked> 正常發布 (Publish)
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" id="prod-stock-status" checked> 有庫存 (In Stock)
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" id="prod-member-only"> 僅會員可見 (Members Only)
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" id="prod-allow-cc" checked> 允許信用卡結算 (Allow Credit Card)
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" id="prod-is-virtual"> 虛擬產品 (Virtual Product)
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>首頁與狀態標籤 (Badges)</label>
+                <div class="form-checkbox-group">
+                  <label class="checkbox-inline">
+                    <input type="checkbox" id="prod-badge-new"> 新品 (New)
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" id="prod-badge-recommend"> 推薦 (Recommend)
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" id="prod-badge-special"> 特價 (Special Offer)
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" id="prod-badge-hot"> 熱賣 (Hot Sale)
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" id="prod-badge-pinned"> 置頂 (Pin to Top)
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" id="prod-badge-homepage" checked> 首頁顯示 (Show on Home)
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-grid-3">
+                <div class="form-group">
+                  <label for="prod-sort-order">排序權重 (Sort Order)</label>
+                  <input type="number" id="prod-sort-order" class="form-control" value="1000">
+                </div>
+                <div class="form-group">
+                  <label for="prod-sold-count">已售出數量 (Sold Qty)</label>
+                  <input type="number" id="prod-sold-count" class="form-control" value="0">
+                </div>
+                <div class="form-group">
+                  <label for="prod-digg-count">點讚/Digg數 (Likes)</label>
+                  <input type="number" id="prod-digg-count" class="form-control" value="0">
+                </div>
+              </div>
+
+              <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+
+              <div class="form-grid-3">
+                <div class="form-group">
+                  <label for="prod-shipping-method">運輸方式 (Shipping Method)</label>
+                  <select id="prod-shipping-method" class="form-control" style="background-color: var(--bg-tertiary);">
+                    <option value="standard">Standard Post Shipping</option>
+                    <option value="express">Express Delivery (DHL/FedEx)</option>
+                    <option value="sea">Ocean Freight</option>
+                  </select>
+                </div>
+                <div class="form-group" style="justify-content: center; margin-bottom: 0;">
+                  <label style="visibility: hidden;">免運費</label>
+                  <label class="checkbox-inline" style="padding-top: 0.5rem;">
+                    <input type="checkbox" id="prod-free-shipping"> 免運費 (Free Shipping)
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label for="prod-min-order">最小起訂量 (Min Order Qty)</label>
+                  <input type="number" id="prod-min-order" class="form-control" value="1">
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label for="prod-weight">產品重量 (Weight in grams)</label>
+                  <input type="number" id="prod-weight" class="form-control" placeholder="克 (g)" value="0">
+                </div>
+                <div class="form-group">
+                  <label>包裹體積 (Package Volume - L x W x H cm)</label>
+                  <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="number" id="prod-pkg-length" class="form-control" style="width: 30%;" placeholder="長 L" value="0">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">x</span>
+                    <input type="number" id="prod-pkg-width" class="form-control" style="width: 30%;" placeholder="寬 W" value="0">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">x</span>
+                    <input type="number" id="prod-pkg-height" class="form-control" style="width: 30%;" placeholder="高 H" value="0">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">cm</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-return-policy">退貨條款 (Return Policy)</label>
+                <select id="prod-return-policy" class="form-control" style="background-color: var(--bg-tertiary);">
+                  <option value="30-days-buyer-pays">Return for refund within 30 days, buyer pays return shipping</option>
+                  <option value="14-days-seller-pays">Return within 14 days, seller pays return shipping</option>
+                  <option value="no-returns">No returns allowed (Final Sale)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: FEATURES & DETAILS -->
+          <div class="form-tab-content-panel d-none" id="form-tab-features">
+            <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+              <div class="form-group">
+                <label>產品特徵描述 (Product Features - Short bullet points for highlights)</label>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                  <input type="text" id="prod-feature-1" class="form-control" placeholder="特徵 1: 例如 Brand & Type...">
+                  <input type="text" id="prod-feature-2" class="form-control" placeholder="特徵 2: 例如 Design & Style...">
+                  <input type="text" id="prod-feature-3" class="form-control" placeholder="特徵 3: 例如 Device Compatibility...">
+                  <input type="text" id="prod-feature-4" class="form-control" placeholder="特徵 4: 例如 Programming Method...">
+                  <input type="text" id="prod-feature-5" class="form-control" placeholder="特徵 5: 例如 Application...">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-overview">產品概述 (Product Overview - Brief summary shown in catalog lists)</label>
+                <textarea id="prod-overview" class="form-control" rows="3" placeholder="輸入產品簡短概述..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-details-html">詳細說明 (Detailed Rich Description - Supports HTML/Format)</label>
+                <textarea id="prod-details-html" class="form-control" rows="7" placeholder="輸入產品詳細規格、包裝內容物說明 (支援 HTML 原始碼)..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: SEO & VARIATIONS -->
+          <div class="form-tab-content-panel d-none" id="form-tab-seo-variations">
+            <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label for="prod-meta-title">SEO 指定標題 (Meta Title)</label>
+                  <input type="text" id="prod-meta-title" class="form-control" placeholder="如果指定Title則使用指定的，如果留空則系統自動添加">
+                </div>
+                <div class="form-group">
+                  <label for="prod-meta-keywords">SEO 關鍵字 (Meta Keywords)</label>
+                  <input type="text" id="prod-meta-keywords" class="form-control" placeholder="關鍵詞, 逗號(,)分割">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-meta-description">SEO 描述 (Meta Description)</label>
+                <textarea id="prod-meta-description" class="form-control" rows="3" placeholder="請使用簡潔的語言進行描述，建議小於200個字元"></textarea>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label for="prod-tags">產品標籤 (Tags)</label>
+                  <input type="text" id="prod-tags" class="form-control" placeholder="標籤關鍵字，半角逗號(,)分割">
+                </div>
+                <div class="form-group">
+                  <label for="prod-canonical-url">Canonical URL (標準網址)</label>
+                  <input type="text" id="prod-canonical-url" class="form-control" placeholder="https://www.yourdomain.com/products/example.html">
+                </div>
+              </div>
+
+              <div class="form-grid-3">
+                <div class="form-group">
+                  <label for="prod-sitemap-weight">Sitemap 權重 (Sitemap Weight)</label>
+                  <select id="prod-sitemap-weight" class="form-control" style="background-color: var(--bg-tertiary);">
+                    <option value="1.0">1.0 (主產品)</option>
+                    <option value="0.9">0.9 (推薦商品)</option>
+                    <option value="0.8">0.8</option>
+                    <option value="0.7" selected>0.7 (普通商品)</option>
+                    <option value="0.5">0.5</option>
+                    <option value="0.3">0.3</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="prod-sitemap-freq">預計更新週期 (Update Freq)</label>
+                  <select id="prod-sitemap-freq" class="form-control" style="background-color: var(--bg-tertiary);">
+                    <option value="always">always (一直更新)</option>
+                    <option value="hourly">hourly (每小時)</option>
+                    <option value="daily">daily (每天)</option>
+                    <option value="weekly" selected>weekly (每週)</option>
+                    <option value="monthly">monthly (每月)</option>
+                  </select>
+                </div>
+                <div class="form-group" style="justify-content: center; margin-bottom: 0;">
+                  <label style="visibility: hidden;">Google Shopping</label>
+                  <label class="checkbox-inline" style="padding-top: 0.5rem;">
+                    <input type="checkbox" id="prod-google-shopping"> 允許 Google Shopping 同步
+                  </label>
+                </div>
+              </div>
+
+              <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
+
+              <div class="form-group">
+                <label>多屬性變體設定 (Variations)</label>
+                <div class="form-grid-3">
+                  <div class="form-group">
+                    <label for="prod-var-role">變體角色 (Variation Role)</label>
+                    <select id="prod-var-role" class="form-control" style="background-color: var(--bg-tertiary);">
+                      <option value="parent">作為主產品 Parent</option>
+                      <option value="child">作為子產品 Child</option>
+                      <option value="standalone">單一商品 Standalone</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="prod-var-theme">Variation 主題</label>
+                    <input type="text" id="prod-var-theme" class="form-control" placeholder="例如: Color, Pack Size">
+                  </div>
+                  <div class="form-group">
+                    <label for="prod-var-value">Variation 屬性值</label>
+                    <input type="text" id="prod-var-value" class="form-control" placeholder="例如: Black, 10PCS">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label for="prod-language">語系 (Language)</label>
+                  <select id="prod-language" class="form-control" style="background-color: var(--bg-tertiary);">
+                    <option value="en">English</option>
+                    <option value="zh">中文 (Chinese)</option>
+                    <option value="fr">Français (French)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="prod-version">版本設定 (Version)</label>
+                  <input type="text" id="prod-version" class="form-control" placeholder="例如: 2026 new, v2">
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+            <button type="button" id="btn-cancel-form" class="btn-secondary">Cancel</button>
+            <button type="submit" class="btn-primary">Save Product</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Dependencies and local runtime state
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Private operational data; migrate to Firebase before deployment
+db.json
+public/uploads/
+
+# Local-only scraped source and logs
+product_page_dump.html
+*.log

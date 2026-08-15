@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>keydiyshop - Universal Car Keys & Locksmith Tools</title>
+  <meta name="description" content="Official Online Store for KEYDIY automotive remote keys, programmers, OBD tools, smart keys, and accessories. Premium quality locksmith supply.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <div class="logo-area">
+        <a href="/" class="logo">
+          <i class="fa-solid fa-key logo-icon"></i>
+          <span class="logo-text">keydiy<span class="logo-ext">shop</span></span>
+        </a>
+      </div>
+      
+      <div class="search-bar-container">
+        <div class="search-input-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="search-input" placeholder="Search for keys, programmers, accessories...">
+          <button id="search-clear-btn" class="search-clear-btn d-none"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Currency Selector -->
+        <div class="currency-selector">
+          <button id="curr-selector-btn" class="curr-btn">
+            <span class="flag-icon"><i class="fa-solid fa-globe"></i></span>
+            <span id="curr-code">USD ($)</span>
+            <i class="fa-solid fa-chevron-down arrow-icon"></i>
+          </button>
+          <div id="curr-dropdown" class="curr-dropdown d-none">
+            <button class="curr-option" data-curr="EUR">EUR (€) Euro</button>
+            <button class="curr-option" data-curr="USD">USD ($) US Dollar</button>
+            <button class="curr-option" data-curr="GBP">GBP (£) British Pound</button>
+          </div>
+        </div>
+
+        <!-- Shopping Cart Icon Button -->
+        <button id="header-cart-btn" class="curr-btn" style="position: relative; padding: 0.5rem 0.75rem;">
+          <i class="fa-solid fa-shopping-cart" style="font-size: 0.95rem;"></i>
+          <span class="cart-count-badge d-none" id="cart-count-badge" style="position: absolute; top: -6px; right: -6px; background-color: var(--danger-color); color: white; font-size: 0.65rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-secondary);">0</span>
+        </button>
+
+        <!-- Member Auth Area -->
+        <div id="member-auth-section" style="display: flex;">
+          <button id="member-signin-btn" class="admin-btn" style="background-color: transparent;">
+            <i class="fa-solid fa-user"></i>
+            <span>Sign In</span>
+          </button>
+        </div>
+        <div id="member-info-section" class="d-none" style="display: flex; gap: 0.5rem; align-items: center;">
+          <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;" id="member-welcome-msg">Welcome!</span>
+          <button id="member-logout-btn" class="admin-btn" style="background-color: transparent; border-color: rgba(239, 68, 68, 0.3); color: var(--danger-color); padding: 0.4rem 0.65rem;" title="Logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
+
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section & Promo Banner -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="badge">KEYDIY OFFICIAL DISTRIBUTOR</div>
+      <h1>Next-Gen Universal Car Keys</h1>
+      <p>Program and clone hundreds of car remotes with KD-MAX, KD-X4 and our premium universal keys. Fast programming, robust signal, top reliability.</p>
+      <div class="hero-buttons">
+        <a href="#shop-section" class="btn-primary">Browse Catalog</a>
+        <a href="https://api.whatsapp.com/send?phone=886979056575" target="_blank" class="btn-secondary">
+          <i class="fa-brands fa-whatsapp"></i> Live Chat Support
+        </a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="visual-card">
+        <div class="glow-container">
+          <i class="fa-solid fa-microchip visual-chip"></i>
+          <div class="visual-text">
+            <h3>KD-MAX Android Smart Device</h3>
+            <p>Wi-Fi & Bluetooth key generator & frequency tester</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Catalog Section -->
+  <main class="shop-container" id="shop-section">
+    <!-- Sidebar Categories -->
+    <aside class="sidebar">
+      <div class="sidebar-block">
+        <h2 class="sidebar-title"><i class="fa-solid fa-sliders"></i> Categories</h2>
+        <ul class="category-list" id="category-list">
+          <li class="category-item active" data-category="all">
+            <span class="cat-name">All Products</span>
+            <span class="cat-count" id="count-all">0</span>
+          </li>
+          <!-- Categories dynamic list will be loaded here -->
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Product Grid & Search Results -->
+    <section class="products-catalog">
+      <div class="catalog-header">
+        <div class="results-info">
+          Showing <span id="displayed-products-count" class="highlight">0</span> products
+        </div>
+        <div class="sort-selector-wrapper">
+          <label for="sort-select">Sort by:</label>
+          <select id="sort-select" class="sort-select">
+            <option value="default">Default</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="name-asc">Alphabetical: A-Z</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading-spinner" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading products from catalog...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state d-none">
+        <i class="fa-solid fa-magnifying-glass-minus"></i>
+        <h3>No products found</h3>
+        <p>Try adjusting your search criteria or selecting a different category.</p>
+        <button id="reset-filters-btn" class="btn-primary-sm">Show All Products</button>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="products-grid" id="products-grid">
+        <!-- Products will be dynamically rendered here -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Product Detail Modal -->
+  <div id="product-modal" class="modal d-none">
+    <div class="modal-overlay"></div>
+    <div class="modal-container">
+      <button class="modal-close-btn" id="modal-close-btn"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-content" id="modal-product-detail">
+        <!-- Content loaded dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <span class="logo-text">keydiy<span class="logo-ext">shop</span></span>
+        <p>Your premium resource for KeyDIY OBD programmers, universal remote keys, dedicated chips, and locksmith software tools. Direct factory shipping and original verification.</p>
+      </div>
+      <div class="footer-links">
+        <h3>Direct Support</h3>
+        <ul>
+          <li><a href="https://api.whatsapp.com/send?phone=886979056575" target="_blank"><i class="fa-brands fa-whatsapp"></i> WhatsApp Support</a></li>
+          <li><a href="#"><i class="fa-solid fa-envelope"></i> contact@keydiyshop.com</a></li>
+
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 keydiyshop. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Cart Drawer -->
+  <div id="cart-drawer" class="cart-drawer d-none" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1100;">
+    <div class="cart-drawer-overlay" id="cart-drawer-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(2px);"></div>
+    <div class="cart-drawer-container" style="position: absolute; top: 0; right: 0; width: 100%; max-width: 440px; height: 100%; background-color: var(--bg-secondary); border-left: 1px solid var(--border-color); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; animation: drawerEnter 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="cart-drawer-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-shopping-cart highlight"></i> Shopping Cart</h2>
+        <button id="cart-close-btn" class="modal-close-btn" style="position: static; font-size: 1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="cart-drawer-body" id="cart-items-container" style="flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+        <!-- Cart items populated by JS -->
+      </div>
+      <div class="cart-drawer-footer" style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 1rem;">
+        <div class="cart-subtotal-row" style="display: flex; justify-content: space-between; font-weight: 600; font-size: 1.1rem;">
+          <span>Subtotal:</span>
+          <span id="cart-subtotal-amount">$0.00</span>
+        </div>
+        <button id="cart-checkout-btn" class="btn-primary btn-block" style="padding: 0.75rem; font-size: 0.95rem;">Send Order via WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Member Auth Modal -->
+  <div id="member-auth-modal" class="modal d-none" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1050; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal-overlay" id="member-auth-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px);"></div>
+    <div class="modal-container" style="background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); max-width: 400px; width: 100%; z-index: 1051; box-shadow: var(--shadow-lg); padding: 2rem; position: relative;">
+      <button class="modal-close-btn" id="member-auth-close-btn"><i class="fa-solid fa-xmark"></i></button>
+      
+      <!-- Login -->
+      <div id="member-login-panel">
+        <h2 style="font-family: var(--font-display); margin-bottom: 1.5rem; text-align: center;"><i class="fa-solid fa-user highlight"></i> Member Login</h2>
+        <div id="member-login-error" class="error-message d-none" style="margin-bottom: 1rem;"></div>
+        <form id="member-login-form">
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label for="member-login-username" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">Username</label>
+            <input type="text" id="member-login-username" class="form-control" style="width: 100%;" placeholder="Enter username" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="member-login-password" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">Password</label>
+            <input type="password" id="member-login-password" class="form-control" style="width: 100%;" placeholder="Enter password" required>
+          </div>
+          <button type="submit" class="btn-primary btn-block" style="padding: 0.75rem; font-size: 0.95rem;">Log In</button>
+        </form>
+        <p style="text-align: center; font-size: 0.85rem; margin-top: 1.5rem; color: var(--text-secondary);">
+          Don't have an account? <a href="#" id="go-to-register" style="color: var(--accent-color); font-weight: 500; text-decoration: underline;">Register here</a>
+        </p>
+      </div>
+
+      <!-- Register -->
+      <div id="member-register-panel" class="d-none">
+        <h2 style="font-family: var(--font-display); margin-bottom: 1.5rem; text-align: center;"><i class="fa-solid fa-user-plus highlight"></i> Create Account</h2>
+        <div id="member-register-error" class="error-message d-none" style="margin-bottom: 1rem;"></div>
+        <form id="member-register-form">
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label for="member-reg-username" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">Username</label>
+            <input type="text" id="member-reg-username" class="form-control" style="width: 100%;" placeholder="Enter username" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label for="member-reg-email" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">Email Address</label>
+            <input type="email" id="member-reg-email" class="form-control" style="width: 100%;" placeholder="Enter email" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="member-reg-password" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">Password</label>
+            <input type="password" id="member-reg-password" class="form-control" style="width: 100%;" placeholder="Create password" required>
+          </div>
+          <button type="submit" class="btn-primary btn-block" style="padding: 0.75rem; font-size: 0.95rem;">Register</button>
+        </form>
+        <p style="text-align: center; font-size: 0.85rem; margin-top: 1.5rem; color: var(--text-secondary);">
+          Already have an account? <a href="#" id="go-to-login" style="color: var(--accent-color); font-weight: 500; text-decoration: underline;">Log in here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

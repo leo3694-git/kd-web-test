@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{META_TITLE}}</title>
+  <meta name="description" content="{{META_DESCRIPTION}}">
+  <meta name="keywords" content="{{META_KEYWORDS}}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    /* Standalone Product Page Specific Layouts */
+    .breadcrumbs-nav {
+      max-width: 1300px;
+      margin: 1.5rem auto 1rem;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .breadcrumbs-nav a {
+      color: var(--text-secondary);
+      transition: color 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .breadcrumbs-nav a:hover {
+      color: var(--accent-color);
+    }
+    .breadcrumbs-nav .separator {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .breadcrumbs-nav .current-cat {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .detail-container-card {
+      max-width: 1300px;
+      margin: 0 auto 3rem;
+      padding: 0 1.5rem;
+    }
+    .detail-layout-card {
+      background-color: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+    .detail-description-section {
+      background-color: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-md);
+      padding: 2.5rem;
+      margin-top: 2rem;
+    }
+    .description-section-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent-color);
+      display: inline-block;
+    }
+    .specs-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+    .specs-table td {
+      padding: 0.65rem 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--bg-tertiary);
+    }
+    .specs-table td:first-child {
+      font-weight: 500;
+      color: var(--text-primary);
+      width: 30%;
+    }
+    .detail-cat-badge {
+      display: inline-block;
+      background-color: var(--accent-glow);
+      color: var(--accent-color);
+      font-weight: 600;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 30px;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <div class="logo-area">
+        <a href="/" class="logo">
+          <i class="fa-solid fa-key logo-icon"></i>
+          <span class="logo-text">keydiy<span class="logo-ext">shop</span></span>
+        </a>
+      </div>
+      
+      <div class="search-bar-container">
+        <div class="search-input-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="search-input" placeholder="Search for keys, programmers, accessories...">
+          <button id="search-clear-btn" class="search-clear-btn d-none"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Currency Selector -->
+        <div class="currency-selector">
+          <button id="curr-selector-btn" class="curr-btn">
+            <span class="flag-icon"><i class="fa-solid fa-globe"></i></span>
+            <span id="curr-code">USD ($)</span>
+            <i class="fa-solid fa-chevron-down arrow-icon"></i>
+          </button>
+          <div id="curr-dropdown" class="curr-dropdown d-none">
+            <button class="curr-option" data-curr="EUR">EUR (€) Euro</button>
+            <button class="curr-option" data-curr="USD">USD ($) US Dollar</button>
+            <button class="curr-option" data-curr="GBP">GBP (£) British Pound</button>
+          </div>
+        </div>
+
+        <!-- Shopping Cart Icon Button -->
+        <button id="header-cart-btn" class="curr-btn" style="position: relative; padding: 0.5rem 0.75rem;">
+          <i class="fa-solid fa-shopping-cart" style="font-size: 0.95rem;"></i>
+          <span class="cart-count-badge d-none" id="cart-count-badge" style="position: absolute; top: -6px; right: -6px; background-color: var(--danger-color); color: white; font-size: 0.65rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-secondary);">0</span>
+        </button>
+
+        <!-- Member Auth Area -->
+        <div id="member-auth-section" style="display: flex;">
+          <button id="member-signin-btn" class="admin-btn" style="background-color: transparent;">
+            <i class="fa-solid fa-user"></i>
+            <span>Sign In</span>
+          </button>
+        </div>
+        <div id="member-info-section" class="d-none" style="display: flex; gap: 0.5rem; align-items: center;">
+          <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;" id="member-welcome-msg">Welcome!</span>
+          <button id="member-logout-btn" class="admin-btn" style="background-color: transparent; border-color: rgba(239, 68, 68, 0.3); color: var(--danger-color); padding: 0.4rem 0.65rem;" title="Logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Breadcrumbs -->
+  <div class="breadcrumbs-nav">
+    <a href="/"><i class="fa-solid fa-house"></i> Home</a>
+    <i class="fa-solid fa-chevron-right separator"></i>
+    <a href="/#shop-section">Products</a>
+    <i class="fa-solid fa-chevron-right separator"></i>
+    <span class="current-cat">{{PRODUCT_CATEGORY}}</span>
+  </div>
+
+  <!-- Detail Container -->
+  <div class="detail-container-card">
+    <div class="detail-layout-card">
+      <div class="detail-layout">
+        <!-- Left Column -->
+        <div class="detail-left">
+          <div class="detail-image-box">
+            <img class="detail-main-img" src="{{PRODUCT_IMAGE}}" alt="{{PRODUCT_TITLE}}" onerror="this.src='/uploads/placeholder.jpg'">
+          </div>
+          <!-- Thumbnails Row with Arrow Navigation -->
+          <div class="thumb-nav-row">
+            <button class="thumb-nav-btn" onclick="navigateImage(-1)" aria-label="Previous image"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="detail-thumbnails" id="detail-thumbnails">
+              {{PRODUCT_THUMBNAILS}}
+            </div>
+            <button class="thumb-nav-btn" onclick="navigateImage(1)" aria-label="Next image"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <!-- Right Column -->
+        <div class="detail-right-info">
+          <div>
+            <div class="detail-cat-badge">{{PRODUCT_CATEGORY}}</div>
+            <h1 class="detail-product-title">{{PRODUCT_TITLE}}</h1>
+          </div>
+          
+          <div class="detail-meta-row">
+            <span>SKU: <span class="meta-val">{{PRODUCT_SKU}}</span></span>
+            <span class="divider">|</span>
+            <span>Brand: <span class="meta-val">{{PRODUCT_BRAND}}</span></span>
+            <span class="divider">|</span>
+            <span>Status: <span class="stock-status-green"><i class="fa-solid fa-check"></i> In Stock</span></span>
+          </div>
+
+          <div class="detail-price-section">
+            <div class="latest-price-text">Wholesale Price:</div>
+            <div class="detail-prices-wrapper" id="detail-prices-wrapper" style="display: flex; align-items: baseline; gap: 0.75rem;">
+              {{PRODUCT_PRICE_HTML}}
+              {{PRODUCT_ORIGINAL_PRICE_HTML}}
+            </div>
+          </div>
+
+          <div class="detail-features-box">
+            <h3>Key Features:</h3>
+            <ul class="detail-features-list">
+              {{PRODUCT_FEATURES}}
+            </ul>
+          </div>
+
+          <div class="detail-shipping-info">
+            <div class="shipping-row"><i class="fa-solid fa-truck-fast"></i> <span><strong>Shipping:</strong> <span style="color: #22c55e; font-weight: 600;">Flat Rate Shipping</span> (Express Service, 3-7 days)</span></div>
+            <div class="shipping-row"><i class="fa-solid fa-rotate-left"></i> <span><strong>Returns:</strong> 30-Day Returns Policy. Buyer pays return shipping.</span></div>
+          </div>
+
+          <div class="detail-qty-row">
+            <span>Quantity:</span>
+            <div class="qty-control-wrapper">
+              <button class="qty-btn" id="qty-minus-btn">-</button>
+              <input type="number" class="qty-input" id="qty-input-val" value="1" min="1" max="99">
+              <button class="qty-btn" id="qty-plus-btn">+</button>
+            </div>
+          </div>
+
+          <div class="detail-buttons-row">
+            <button class="btn-primary" id="add-to-cart-btn" style="flex: 1; padding: 0.85rem; font-size: 1rem;"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>
+            <button class="btn-secondary" id="buy-now-btn" style="padding: 0.85rem 1.25rem;"><i class="fa-brands fa-whatsapp"></i> Buy Now</button>
+          </div>
+
+          <div class="detail-specs-box">
+            <h3>Specifications:</h3>
+            <table class="specs-table">
+              <tr>
+                <td>Weight:</td>
+                <td>{{PRODUCT_WEIGHT}}</td>
+              </tr>
+              <tr>
+                <td>Package Dimensions:</td>
+                <td>{{PRODUCT_PKG_SIZE}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Description Section -->
+    <div class="detail-description-section">
+      <h2 class="description-section-title">Product Detailed Description</h2>
+      <div class="detail-description-html">
+        {{PRODUCT_DESCRIPTION}}
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <span class="logo-text">keydiy<span class="logo-ext">shop</span></span>
+        <p>Your premium resource for KeyDIY OBD programmers, universal remote keys, dedicated chips, and locksmith software tools. Direct factory shipping and original verification.</p>
+      </div>
+      <div class="footer-links">
+        <h3>Direct Support</h3>
+        <ul>
+          <li><a href="https://api.whatsapp.com/send?phone=886979056575" target="_blank"><i class="fa-brands fa-whatsapp"></i> WhatsApp Support</a></li>
+          <li><a href="#"><i class="fa-solid fa-envelope"></i> contact@keydiyshop.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 keydiyshop. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Cart Drawer -->
+  <div id="cart-drawer" class="cart-drawer d-none" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1100;">
+    <div class="cart-drawer-overlay" id="cart-drawer-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(2px);"></div>
+    <div class="cart-drawer-container" style="position: absolute; top: 0; right: 0; width: 100%; max-width: 440px; height: 100%; background-color: var(--bg-secondary); border-left: 1px solid var(--border-color); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; animation: drawerEnter 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="cart-drawer-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-shopping-cart highlight"></i> Shopping Cart</h2>
+        <button id="cart-close-btn" class="modal-close-btn" style="position: static; font-size: 1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="cart-drawer-body" id="cart-items-container" style="flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+        <!-- Cart items populated by JS -->
+      </div>
+      <div class="cart-drawer-footer" style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 1rem;">
+        <div class="cart-subtotal-row" style="display: flex; justify-content: space-between; font-weight: 600; font-size: 1.1rem;">
+          <span>Subtotal:</span>
+          <span id="cart-subtotal-amount">$0.00</span>
+        </div>
+        <button id="cart-checkout-btn" class="btn-primary btn-block" style="padding: 0.75rem; font-size: 0.95rem;">Send Order via WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Member Auth Modal -->
+  <div id="member-auth-modal" class="modal d-none" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1050; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal-overlay" id="member-auth-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px);"></div>
+    <div class="modal-container" style="background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); max-width: 400px; width: 100%; z-index: 1051; box-shadow: var(--shadow-lg); padding: 2rem; position: relative;">
+      <button class="modal-close-btn" id="member-auth-close-btn"><i class="fa-solid fa-xmark"></i></button>
+      
+      <!-- Login -->
+      <div id="member-login-panel">
+        <h2 style="font-family: var(--font-display); margin-bottom: 1.5rem; text-align: center;"><i class="fa-solid fa-user highlight"></i> Member Login</h2>
+        <div id="member-login-error" class="error-message d-none" style="margin-bottom: 1rem;"></div>
+        <form id="member-login-form">
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label for="member-login-username" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">Username</label>
+            <input type="text" id="member-login-username" class="form-control" style="width: 100%;" placeholder="Enter username" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="member-login-password" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">Password</label>
+            <input type="password" id="member-login-password" class="form-control" style="width: 100%;" placeholder="Enter password" required>
+          </div>
+          <button type="submit" class="btn-primary btn-block" style="padding: 0.75rem; font-size: 0.95rem;">Log In</button>
+        </form>
+        <p style="text-align: center; font-size: 0.85rem; margin-top: 1.5rem; color: var(--text-secondary);">
+          Don't have an account? <a href="#" id="go-to-register" style="color: var(--accent-color); font-weight: 500; text-decoration: underline;">Register here</a>
+        </p>
+      </div>
+
+      <!-- Register -->
+      <div id="member-register-panel" class="d-none">
+        <h2 style="font-family: var(--font-display); margin-bottom: 1.5rem; text-align: center;"><i class="fa-solid fa-user-plus highlight"></i> Create Account</h2>
+        <div id="member-register-error" class="error-message d-none" style="margin-bottom: 1rem;"></div>
+        <form id="member-register-form">
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label for="member-reg-username" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">Username</label>
+            <input type="text" id="member-reg-username" class="form-control" style="width: 100%;" placeholder="Enter username" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label for="member-reg-email" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">Email Address</label>
+            <input type="email" id="member-reg-email" class="form-control" style="width: 100%;" placeholder="Enter email" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="member-reg-password" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">Password</label>
+            <input type="password" id="member-reg-password" class="form-control" style="width: 100%;" placeholder="Create password" required>
+          </div>
+          <button type="submit" class="btn-primary btn-block" style="padding: 0.75rem; font-size: 0.95rem;">Register</button>
+        </form>
+        <p style="text-align: center; font-size: 0.85rem; margin-top: 1.5rem; color: var(--text-secondary);">
+          Already have an account? <a href="#" id="go-to-login" style="color: var(--accent-color); font-weight: 500; text-decoration: underline;">Log in here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic Product Info (For Client Script) -->
+  <script>
+    window.CURRENT_PRODUCT = {
+      id: "{{PRODUCT_ID}}",
+      title: "{{PRODUCT_TITLE}}",
+      price: parseFloat("{{PRODUCT_RAW_PRICE}}"),
+      imageUrl: "{{PRODUCT_IMAGE}}",
+      memberOnly: {{PRODUCT_MEMBER_ONLY}},
+      sku: "{{PRODUCT_SKU}}",
+      brand: "{{PRODUCT_BRAND}}"
+    };
+  </script>
+  <script src="/product-page.js"></script>
+</body>
+</html>
