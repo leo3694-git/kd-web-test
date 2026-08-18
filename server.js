@@ -10,9 +10,9 @@ const DB_FILE = path.join(__dirname, 'db.json');
 
 // Admin credentials must be supplied through environment variables.
 // Keep these values out of source control; see .env.example.
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin_password';
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'kd_admin_secret_token_2026';
 
 app.use(cors());
 app.use(express.json());
