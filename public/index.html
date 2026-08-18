@@ -16,6 +16,10 @@
   <header class="site-header">
     <div class="header-container">
       <div class="logo-area">
+        <!-- Hamburger (mobile only) -->
+        <button id="sidebar-toggle-btn" class="hamburger-btn" aria-label="Toggle Categories">
+          <span></span><span></span><span></span>
+        </button>
         <a href="/" class="logo">
           <i class="fa-solid fa-key logo-icon"></i>
           <span class="logo-text">keydiy<span class="logo-ext">shop</span></span>
@@ -96,12 +100,18 @@
     </div>
   </section>
 
+  <!-- Sidebar Overlay (mobile) -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
   <!-- Catalog Section -->
   <main class="shop-container" id="shop-section">
     <!-- Sidebar Categories -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-block">
-        <h2 class="sidebar-title"><i class="fa-solid fa-sliders"></i> Categories</h2>
+        <div class="sidebar-header-row">
+          <h2 class="sidebar-title"><i class="fa-solid fa-sliders"></i> Categories</h2>
+          <button id="sidebar-close-btn" class="sidebar-close-btn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
         <ul class="category-list" id="category-list">
           <li class="category-item active" data-category="all">
             <span class="cat-name">All Products</span>

@@ -63,6 +63,31 @@ const memberRegisterError = document.getElementById('member-register-error');
 const goToRegisterLink = document.getElementById('go-to-register');
 const goToLoginLink = document.getElementById('go-to-login');
 
+// Sidebar Drawer DOM Elements
+const sidebarEl = document.getElementById('sidebar');
+const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
+const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+function openSidebar() {
+  sidebarEl.classList.add('open');
+  sidebarOverlay.classList.add('active');
+  sidebarToggleBtn.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  sidebarEl.classList.remove('open');
+  sidebarOverlay.classList.remove('active');
+  sidebarToggleBtn.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+if (sidebarToggleBtn) sidebarToggleBtn.addEventListener('click', () => {
+  sidebarEl.classList.contains('open') ? closeSidebar() : openSidebar();
+});
+if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
+if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+
 // Modal Elements
 const productModal = document.getElementById('product-modal');
 const modalCloseBtn = document.getElementById('modal-close-btn');
@@ -165,6 +190,7 @@ function renderCategories() {
       item.classList.add('active');
       state.selectedCategory = item.getAttribute('data-category');
       renderProducts();
+      closeSidebar();
     });
   });
 }
