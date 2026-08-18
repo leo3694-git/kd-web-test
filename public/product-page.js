@@ -568,10 +568,11 @@ window.navigateImage = navigateImage;
 // Product Reviews handling
 async function loadProductReviews() {
   const container = document.getElementById('product-reviews-list');
-  if (!container || !window.PRODUCT_DATA || !window.PRODUCT_DATA.id) return;
+  const product = window.CURRENT_PRODUCT || window.PRODUCT_DATA;
+  if (!container || !product || !product.id) return;
 
   try {
-    const res = await fetch(`/api/reviews?productId=${window.PRODUCT_DATA.id}`);
+    const res = await fetch(`/api/reviews?productId=${product.id}`);
     const reviews = await res.json();
 
     if (!reviews || reviews.length === 0) {
@@ -611,7 +612,11 @@ function initReviewModal() {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!window.PRODUCT_DATA || !window.PRODUCT_DATA.id) return;
+    const product = window.CURRENT_PRODUCT || window.PRODUCT_DATA;
+    if (!product || !product.id) {
+      alert('Product data not loaded');
+      return;
+    }
 
     const authorName = document.getElementById('rev-name').value;
     const rating = document.getElementById('rev-rating').value;
@@ -623,7 +628,7 @@ function initReviewModal() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          productId: window.PRODUCT_DATA.id,
+          productId: product.id,
           authorName,
           rating,
           title,
@@ -634,6 +639,8 @@ function initReviewModal() {
         modal.classList.add('d-none');
         form.reset();
         loadProductReviews();
+      } else {
+        alert('Failed to submit review');
       }
     } catch (err) {
       alert('Failed to submit review');
