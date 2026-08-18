@@ -740,22 +740,165 @@ logoutBtn.addEventListener('click', () => {
   showLogin(true);
 });
 
-// Tab Switcher (Main Dashboard)
-tabProducts.addEventListener('click', () => {
-  tabProducts.classList.add('active');
-  tabCategories.classList.remove('active');
-  contentProducts.classList.remove('d-none');
-  contentCategories.classList.add('d-none');
-  adminState.currentTab = 'products';
-});
+// Tab Switcher Helper Function
+function switchMainTab(activeTabId) {
+  const tabs = [
+    { btn: document.getElementById('tab-products'), content: document.getElementById('content-products'), name: 'products' },
+    { btn: document.getElementById('tab-categories'), content: document.getElementById('content-categories'), name: 'categories' },
+    { btn: document.getElementById('tab-orders'), content: document.getElementById('content-orders'), name: 'orders' },
+    { btn: document.getElementById('tab-analytics'), content: document.getElementById('content-analytics'), name: 'analytics' },
+    { btn: document.getElementById('tab-reviews'), content: document.getElementById('content-reviews'), name: 'reviews' }
+  ];
 
-tabCategories.addEventListener('click', () => {
-  tabCategories.classList.add('active');
-  tabProducts.classList.remove('active');
-  contentCategories.classList.remove('d-none');
-  contentProducts.classList.add('d-none');
-  adminState.currentTab = 'categories';
-});
+  tabs.forEach(t => {
+    if (!t.btn || !t.content) return;
+    if (t.name === activeTabId) {
+      t.btn.classList.add('active');
+      t.content.classList.remove('d-none');
+    } else {
+      t.btn.classList.remove('active');
+      t.content.classList.add('d-none');
+    }
+  });
+
+  if (activeTabId === 'orders') loadAdminOrders();
+  if (activeTabId === 'analytics') loadAdminAnalytics();
+  if (activeTabId === 'reviews') loadAdminReviews();
+}
+
+// Tab Listeners
+const tabProductsEl = document.getElementById('tab-products');
+const tabCategoriesEl = document.getElementById('tab-categories');
+const tabOrdersEl = document.getElementById('tab-orders');
+const tabAnalyticsEl = document.getElementById('tab-analytics');
+const tabReviewsEl = document.getElementById('tab-reviews');
+
+if (tabProductsEl) tabProductsEl.addEventListener('click', () => switchMainTab('products'));
+if (tabCategoriesEl) tabCategoriesEl.addEventListener('click', () => switchMainTab('categories'));
+if (tabOrdersEl) tabOrdersEl.addEventListener('click', () => switchMainTab('orders'));
+if (tabAnalyticsEl) tabAnalyticsEl.addEventListener('click', () => switchMainTab('analytics'));
+if (tabReviewsEl) tabReviewsEl.addEventListener('click', () => switchMainTab('reviews'));
+
+// Load Orders
+async function loadAdminOrders() {
+  const tbody = document.getElementById('admin-orders-list');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading orders...</td></tr>';
+
+  try {
+    const res = await fetch('/api/admin/orders');
+    const orders = await res.json();
+
+    if (!orders || orders.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 2rem;">No orders yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = orders.map(o => `
+      <tr>
+        <td style="font-weight: 600; font-family: monospace;">${o.id}</td>
+        <td style="font-size: 0.85rem;">${(o.created_at || '').split('T')[0]}</td>
+        <td>
+          <div style="font-weight: 500;">${o.customerName || 'Guest'}</div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">${o.customerEmail || ''} ${o.customerPhone ? '| ' + o.customerPhone : ''}</div>
+        </td>
+        <td style="font-weight: 700; color: var(--accent-color);">$${(o.totalPrice || 0).toFixed(2)}</td>
+        <td><span style="font-size: 0.8rem; background: var(--bg-tertiary); padding: 0.2rem 0.5rem; border-radius: 4px;">${o.shippingZone || 'Zone A'}</span></td>
+        <td>
+          <select onchange="updateOrderStatus('${o.id}', this.value)" style="background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem;">
+            <option value="paid" ${o.status === 'paid' ? 'selected' : ''}>Paid</option>
+            <option value="pending_payment" ${o.status === 'pending_payment' ? 'selected' : ''}>Pending Payment</option>
+            <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+            <option value="completed" ${o.status === 'completed' ? 'selected' : ''}>Completed</option>
+            <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;" onclick="alert('Customer Details:\\nName: ${o.customerName}\\nEmail: ${o.customerEmail}\\nPhone: ${o.customerPhone}\\nAddress: ${o.shippingAddress}\\nItems:\\n${(o.items||[]).map(i=>'- '+i.title+' x'+i.quantity).join('\\n')}')">Details</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger-color); padding: 2rem;">Failed to load orders.</td></tr>';
+  }
+}
+
+async function updateOrderStatus(orderId, newStatus) {
+  try {
+    await fetch(`/api/admin/orders/${orderId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    loadAdminOrders();
+  } catch (err) {
+    alert('Failed to update status');
+  }
+}
+window.updateOrderStatus = updateOrderStatus;
+
+// Load Analytics
+async function loadAdminAnalytics() {
+  try {
+    const res = await fetch('/api/admin/analytics');
+    const data = await res.json();
+
+    document.getElementById('kpi-sales').innerText = `$${(data.totalSales || 0).toFixed(2)}`;
+    document.getElementById('kpi-orders').innerText = data.totalOrders || 0;
+    document.getElementById('kpi-products').innerText = data.totalProducts || 0;
+    document.getElementById('kpi-members').innerText = data.totalMembers || 0;
+  } catch (err) {
+    console.error('Failed to load analytics', err);
+  }
+}
+
+// Load Reviews
+async function loadAdminReviews() {
+  const tbody = document.getElementById('admin-reviews-list');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Loading reviews...</td></tr>';
+
+  try {
+    const res = await fetch('/api/admin/reviews');
+    const reviews = await res.json();
+
+    if (!reviews || reviews.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 2rem;">No customer reviews yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = reviews.map(r => `
+      <tr>
+        <td style="color: #f59e0b; font-size: 0.9rem;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</td>
+        <td>
+          <div style="font-weight: 500;">${r.authorName || 'Anonymous'}</div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">${r.authorEmail || ''}</div>
+        </td>
+        <td>
+          <div style="font-weight: 600; font-size: 0.85rem;">${r.title || ''}</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">${r.comment || ''}</div>
+        </td>
+        <td style="font-size: 0.85rem;">${(r.created_at || '').split('T')[0]}</td>
+        <td>
+          <button class="btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; background: var(--danger-color); color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="deleteAdminReview('${r.id}')">Delete</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--danger-color); padding: 2rem;">Failed to load reviews.</td></tr>';
+  }
+}
+
+async function deleteAdminReview(id) {
+  if (!confirm('Are you sure you want to delete this review?')) return;
+  try {
+    await fetch(`/api/admin/reviews/${id}`, { method: 'DELETE' });
+    loadAdminReviews();
+  } catch (err) {
+    alert('Failed to delete review');
+  }
+}
+window.deleteAdminReview = deleteAdminReview;
 
 // Form Modals Toggles
 btnAddProduct.addEventListener('click', openAddModal);
@@ -766,5 +909,5 @@ productFormModal.querySelector('.modal-overlay').addEventListener('click', close
 // Run Check & Initialization
 document.addEventListener('DOMContentLoaded', () => {
   checkAuth();
-  initFormTabs(); // Start form tab listeners
+  initFormTabs();
 });

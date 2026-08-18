@@ -54,8 +54,11 @@
 
     <!-- Navigation Tabs -->
     <div class="admin-tabs">
-      <button class="tab-btn active" id="tab-products">Products</button>
-      <button class="tab-btn" id="tab-categories">Categories</button>
+      <button class="tab-btn active" id="tab-products"><i class="fa-solid fa-box"></i> Products</button>
+      <button class="tab-btn" id="tab-categories"><i class="fa-solid fa-tags"></i> Categories</button>
+      <button class="tab-btn" id="tab-orders"><i class="fa-solid fa-receipt"></i> Orders</button>
+      <button class="tab-btn" id="tab-analytics"><i class="fa-solid fa-chart-pie"></i> Analytics & CSV</button>
+      <button class="tab-btn" id="tab-reviews"><i class="fa-solid fa-star"></i> Customer Reviews</button>
     </div>
 
     <!-- Products Tab Content -->
@@ -119,6 +122,102 @@
               <!-- Categories list loaded dynamically -->
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Tab Content -->
+    <div id="content-orders" class="tab-content d-none">
+      <div class="admin-card">
+        <div class="admin-controls">
+          <div style="font-weight: 600; font-size: 1.1rem;"><i class="fa-solid fa-receipt"></i> Orders Management</div>
+          <div class="admin-action-buttons">
+            <a href="/api/export/orders.csv" class="btn-secondary" download style="text-decoration: none; padding: 0.5rem 1rem; font-size: 0.85rem;">
+              <i class="fa-solid fa-file-csv"></i> Export Orders CSV
+            </a>
+          </div>
+        </div>
+        <div class="table-responsive" style="margin-top: 1rem;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Total</th>
+                <th>Shipping Zone</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-orders-list">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics & CSV Tab Content -->
+    <div id="content-analytics" class="tab-content d-none">
+      <div class="admin-card">
+        <h3 style="font-family: var(--font-display); margin-bottom: 1.5rem;"><i class="fa-solid fa-chart-line"></i> Store Overview & Reports</h3>
+        
+        <!-- KPI Cards Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+          <div style="background: var(--bg-primary); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Total Sales</div>
+            <div id="kpi-sales" style="font-size: 1.8rem; font-weight: 700; color: var(--accent-color); margin-top: 0.25rem;">$0.00</div>
+          </div>
+          <div style="background: var(--bg-primary); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Total Orders</div>
+            <div id="kpi-orders" style="font-size: 1.8rem; font-weight: 700; color: var(--text-primary); margin-top: 0.25rem;">0</div>
+          </div>
+          <div style="background: var(--bg-primary); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Total Products</div>
+            <div id="kpi-products" style="font-size: 1.8rem; font-weight: 700; color: var(--text-primary); margin-top: 0.25rem;">0</div>
+          </div>
+          <div style="background: var(--bg-primary); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Registered Members</div>
+            <div id="kpi-members" style="font-size: 1.8rem; font-weight: 700; color: var(--text-primary); margin-top: 0.25rem;">0</div>
+          </div>
+        </div>
+
+        <!-- Export CSV Section -->
+        <div style="background: var(--bg-primary); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <h4 style="margin-bottom: 0.75rem;"><i class="fa-solid fa-download"></i> Data Export (CSV)</h4>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">Export complete store dataset in UTF-8 CSV format compatible with Microsoft Excel, Google Sheets, and CRM tools.</p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="/api/export/products.csv" download class="btn-primary" style="text-decoration: none; padding: 0.6rem 1.2rem;">
+              <i class="fa-solid fa-file-csv"></i> Download Products CSV
+            </a>
+            <a href="/api/export/orders.csv" download class="btn-secondary" style="text-decoration: none; padding: 0.6rem 1.2rem;">
+              <i class="fa-solid fa-file-csv"></i> Download Orders CSV
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Reviews Tab Content -->
+    <div id="content-reviews" class="tab-content d-none">
+      <div class="admin-card">
+        <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 1rem;"><i class="fa-solid fa-star" style="color: #f59e0b;"></i> Customer Reviews Moderation</div>
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Rating</th>
+                <th>Author</th>
+                <th>Review Comment</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="admin-reviews-list">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

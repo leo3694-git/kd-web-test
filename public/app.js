@@ -43,6 +43,8 @@ const cartDrawerOverlay = document.getElementById('cart-drawer-overlay');
 const cartItemsContainer = document.getElementById('cart-items-container');
 const cartSubtotalAmount = document.getElementById('cart-subtotal-amount');
 const cartCheckoutBtn = document.getElementById('cart-checkout-btn');
+const cartShippingZone = document.getElementById('cart-shipping-zone');
+if (cartShippingZone) cartShippingZone.addEventListener('change', () => renderCartItems());
 
 // Member Auth DOM Elements
 const memberAuthSection = document.getElementById('member-auth-section');
@@ -379,7 +381,36 @@ function renderCartItems() {
     `;
   }).join('');
 
-  cartSubtotalAmount.textContent = formatPrice(subtotal);
+  const zoneSelect = document.getElementById('cart-shipping-zone');
+  const freeMsg = document.getElementById('free-shipping-msg');
+  const selectedZone = zoneSelect ? zoneSelect.value : 'zone2';
+
+  let shippingCost = 0;
+  let msg = '';
+
+  if (selectedZone === 'zone1') {
+    if (subtotal >= 50) {
+      shippingCost = 0;
+      msg = '🎉 Qualified for FREE Shipping (Asia)!';
+    } else {
+      shippingCost = 5;
+      msg = `Add ${formatPrice(50 - subtotal)} more for FREE Shipping!`;
+    }
+  } else if (selectedZone === 'zone2') {
+    if (subtotal >= 150) {
+      shippingCost = 0;
+      msg = '🎉 Qualified for FREE Shipping (Europe/USA)!';
+    } else {
+      shippingCost = 12;
+      msg = `Add ${formatPrice(150 - subtotal)} more for FREE Shipping!`;
+    }
+  } else {
+    shippingCost = 25;
+    msg = 'Flat Rate Shipping: $25 (Rest of World)';
+  }
+
+  if (freeMsg) freeMsg.innerHTML = msg;
+  cartSubtotalAmount.textContent = `${formatPrice(subtotal + shippingCost)} ${shippingCost > 0 ? `(Inc. ${formatPrice(shippingCost)} shipping)` : '(Free Shipping)'}`;
 }
 
 window.adjustCartItemQty = function(productId, amount) {

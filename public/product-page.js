@@ -565,5 +565,85 @@ function navigateImage(direction) {
 }
 window.navigateImage = navigateImage;
 
+// Product Reviews handling
+async function loadProductReviews() {
+  const container = document.getElementById('product-reviews-list');
+  if (!container || !window.PRODUCT_DATA || !window.PRODUCT_DATA.id) return;
+
+  try {
+    const res = await fetch(`/api/reviews?productId=${window.PRODUCT_DATA.id}`);
+    const reviews = await res.json();
+
+    if (!reviews || reviews.length === 0) {
+      container.innerHTML = `
+        <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: center; color: var(--text-secondary);">
+          No reviews yet. Be the first to share your experience with this key!
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = reviews.map(r => `
+      <div style="background: var(--bg-secondary); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+          <div style="color: #f59e0b; font-size: 0.9rem;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">${(r.created_at || '').split('T')[0]}</div>
+        </div>
+        <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.25rem;">${r.title || 'Verified Purchase'}</div>
+        <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">${r.comment}</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;"><i class="fa-solid fa-user-check" style="color: var(--accent-color);"></i> ${r.authorName}</div>
+      </div>
+    `).join('');
+  } catch (err) {
+    container.innerHTML = '<p style="color: var(--danger-color);">Failed to load reviews.</p>';
+  }
+}
+
+function initReviewModal() {
+  const modal = document.getElementById('review-modal');
+  const btnOpen = document.getElementById('btn-write-review');
+  const btnCancel = document.getElementById('btn-cancel-review');
+  const form = document.getElementById('review-form');
+  if (!modal || !btnOpen || !form) return;
+
+  btnOpen.addEventListener('click', () => modal.classList.remove('d-none'));
+  if (btnCancel) btnCancel.addEventListener('click', () => modal.classList.add('d-none'));
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!window.PRODUCT_DATA || !window.PRODUCT_DATA.id) return;
+
+    const authorName = document.getElementById('rev-name').value;
+    const rating = document.getElementById('rev-rating').value;
+    const title = document.getElementById('rev-title').value;
+    const comment = document.getElementById('rev-comment').value;
+
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: window.PRODUCT_DATA.id,
+          authorName,
+          rating,
+          title,
+          comment
+        })
+      });
+      if (res.ok) {
+        modal.classList.add('d-none');
+        form.reset();
+        loadProductReviews();
+      }
+    } catch (err) {
+      alert('Failed to submit review');
+    }
+  });
+}
+
 // Run Initialization
-document.addEventListener('DOMContentLoaded', initProductPage);
+document.addEventListener('DOMContentLoaded', () => {
+  initProductPage();
+  loadProductReviews();
+  initReviewModal();
+});

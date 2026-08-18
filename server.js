@@ -111,16 +111,18 @@ const upload = multer({ storage: storage });
 // Helper functions to read/write DB
 function readDB() {
   if (!fs.existsSync(DB_FILE)) {
-    return { products: [], categories: [], members: [] };
+    return { products: [], categories: [], members: [], reviews: [], orders: [] };
   }
   try {
     const data = fs.readFileSync(DB_FILE, 'utf8');
     const db = JSON.parse(data);
     db.members = db.members || [];
+    db.reviews = db.reviews || [];
+    db.orders = db.orders || [];
     return db;
-  } catch (err) {
-    console.error('Error reading db.json:', err.message);
-    return { products: [], categories: [], members: [] };
+  } catch (e) {
+    console.error('Error reading DB:', e);
+    return { products: [], categories: [], members: [], reviews: [], orders: [] };
   }
 }
 
@@ -393,6 +395,201 @@ app.post('/api/member/login', (req, res) => {
   } else {
     res.status(401).json({ error: 'Invalid username or password' });
   }
+});
+
+// ===== SEO Automation: Sitemap.xml & Robots.txt =====
+app.get('/sitemap.xml', (req, res) => {
+  const host = req.protocol + '://' + req.get('host');
+  const db = readDB();
+  const now = new Date().toISOString().split('T')[0];
+
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+  xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+  xml += `  <url><loc>${host}/</loc><lastmod>${now}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>\n`;
+
+  (db.products || []).forEach(p => {
+    if (p.slug) {
+      xml += `  <url><loc>${host}/wholesale/${p.slug}.html</loc><lastmod>${now}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>\n`;
+    }
+  });
+
+  xml += `</urlset>`;
+  res.header('Content-Type', 'application/xml');
+  res.send(xml);
+});
+
+app.get('/robots.txt', (req, res) => {
+  const host = req.protocol + '://' + req.get('host');
+  const content = `User-agent: *\nAllow: /\nDisallow: /admin.html\nDisallow: /api/\n\nSitemap: ${host}/sitemap.xml\n`;
+  res.header('Content-Type', 'text/plain');
+  res.send(content);
+});
+
+// ===== Reviews API =====
+app.get('/api/reviews', (req, res) => {
+  const { productId } = req.query;
+  const db = readDB();
+  let reviews = db.reviews || [];
+  if (productId) {
+    reviews = reviews.filter(r => r.productId === productId && (r.status === 'approved' || !r.status));
+  }
+  res.json(reviews);
+});
+
+app.post('/api/reviews', (req, res) => {
+  const { productId, authorName, authorEmail, rating, title, comment } = req.body;
+  if (!productId || !authorName || !rating || !comment) {
+    return res.status(400).json({ error: 'Missing required review fields' });
+  }
+
+  const db = readDB();
+  const newReview = {
+    id: 'rev-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+    productId,
+    authorName,
+    authorEmail: authorEmail || '',
+    rating: parseInt(rating) || 5,
+    title: title || '',
+    comment,
+    status: 'approved',
+    created_at: new Date().toISOString()
+  };
+
+  db.reviews = db.reviews || [];
+  db.reviews.unshift(newReview);
+  writeDB(db);
+
+  res.status(201).json({ success: true, review: newReview });
+});
+
+app.get('/api/admin/reviews', (req, res) => {
+  const db = readDB();
+  res.json(db.reviews || []);
+});
+
+app.delete('/api/admin/reviews/:id', (req, res) => {
+  const { id } = req.params;
+  const db = readDB();
+  db.reviews = (db.reviews || []).filter(r => r.id !== id);
+  writeDB(db);
+  res.json({ success: true });
+});
+
+// ===== Orders API =====
+app.post('/api/orders', (req, res) => {
+  const { customerName, customerEmail, customerPhone, shippingAddress, items, totalPrice, shippingCost, shippingZone } = req.body;
+  if (!items || items.length === 0) {
+    return res.status(400).json({ error: 'Order items are required' });
+  }
+
+  const db = readDB();
+  const orderId = 'ORD-' + Date.now().toString().slice(-6) + Math.random().toString(36).substring(2, 5).toUpperCase();
+  
+  const newOrder = {
+    id: orderId,
+    customerName: customerName || 'Guest Buyer',
+    customerEmail: customerEmail || '',
+    customerPhone: customerPhone || '',
+    shippingAddress: shippingAddress || '',
+    shippingZone: shippingZone || 'Zone A',
+    shippingCost: parseFloat(shippingCost) || 0,
+    items,
+    totalPrice: parseFloat(totalPrice) || 0,
+    status: 'paid',
+    shippingStatus: 'processing',
+    created_at: new Date().toISOString()
+  };
+
+  db.orders = db.orders || [];
+  db.orders.unshift(newOrder);
+  writeDB(db);
+
+  res.status(201).json({ success: true, order: newOrder });
+});
+
+app.get('/api/admin/orders', (req, res) => {
+  const db = readDB();
+  res.json(db.orders || []);
+});
+
+app.put('/api/admin/orders/:id', (req, res) => {
+  const { id } = req.params;
+  const { status, shippingStatus, trackingNumber } = req.body;
+  const db = readDB();
+  const order = (db.orders || []).find(o => o.id === id);
+  if (!order) return res.status(404).json({ error: 'Order not found' });
+
+  if (status) order.status = status;
+  if (shippingStatus) order.shippingStatus = shippingStatus;
+  if (trackingNumber) order.trackingNumber = trackingNumber;
+
+  writeDB(db);
+  res.json({ success: true, order });
+});
+
+// ===== Analytics Dashboard API =====
+app.get('/api/admin/analytics', (req, res) => {
+  const db = readDB();
+  const products = db.products || [];
+  const orders = db.orders || [];
+  const members = db.members || [];
+  const reviews = db.reviews || [];
+
+  const totalSales = orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+  const totalOrders = orders.length;
+  const totalProducts = products.length;
+  const totalMembers = members.length;
+  const totalReviews = reviews.length;
+
+  const categoryCounts = {};
+  products.forEach(p => {
+    categoryCounts[p.category] = (categoryCounts[p.category] || 0) + 1;
+  });
+
+  res.json({
+    totalSales,
+    totalOrders,
+    totalProducts,
+    totalMembers,
+    totalReviews,
+    categoryCounts,
+    recentOrders: orders.slice(0, 5)
+  });
+});
+
+// ===== CSV Export APIs =====
+app.get('/api/export/products.csv', (req, res) => {
+  const db = readDB();
+  const products = db.products || [];
+
+  let csv = '\uFEFFSKU,Title,Category,Price ($),Stock,Brand,Slug\n';
+  products.forEach(p => {
+    const title = `"${(p.title || '').replace(/"/g, '""')}"`;
+    const cat = `"${(p.category || '').replace(/"/g, '""')}"`;
+    csv += `${p.sku || ''},${title},${cat},${p.price || 0},${p.stockStatus !== false ? 'In Stock' : 'Out of Stock'},${p.brand || 'KEYDIY'},${p.slug || ''}\n`;
+  });
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename=keydiyshop_products.csv');
+  res.status(200).send(csv);
+});
+
+app.get('/api/export/orders.csv', (req, res) => {
+  const db = readDB();
+  const orders = db.orders || [];
+
+  let csv = '\uFEFFOrder ID,Date,Customer Name,Customer Email,Customer Phone,Total ($),Shipping ($),Status,Shipping Status,Items\n';
+  orders.forEach(o => {
+    const name = `"${(o.customerName || '').replace(/"/g, '""')}"`;
+    const email = `"${(o.customerEmail || '').replace(/"/g, '""')}"`;
+    const phone = `"${(o.customerPhone || '').replace(/"/g, '""')}"`;
+    const itemsStr = `"${(o.items || []).map(i => `${i.title || i.id} x${i.quantity || 1}`).join('; ').replace(/"/g, '""')}"`;
+    csv += `${o.id || ''},${(o.created_at || '').split('T')[0]},${name},${email},${phone},${o.totalPrice || 0},${o.shippingCost || 0},${o.status || 'paid'},${o.shippingStatus || 'processing'},${itemsStr}\n`;
+  });
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename=keydiyshop_orders.csv');
+  res.status(200).send(csv);
 });
 
 // Start server

@@ -11,6 +11,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/style.css">
+  <!-- Google Analytics 4 (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DEMO123456"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-DEMO123456');
+  </script>
   <style>
     /* Standalone Product Page Specific Layouts */
     .breadcrumbs-nav {
@@ -256,6 +264,54 @@
         {{PRODUCT_DESCRIPTION}}
       </div>
     </div>
+
+    <!-- Customer Reviews Section -->
+    <div class="detail-description-section" style="margin-top: 2rem;" id="reviews-container-section">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 class="description-section-title" style="margin: 0;"><i class="fa-solid fa-star" style="color: #f59e0b;"></i> Customer Reviews & Ratings</h2>
+        <button id="btn-write-review" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;"><i class="fa-solid fa-pen"></i> Write a Review</button>
+      </div>
+
+      <div id="product-reviews-list" style="display: flex; flex-direction: column; gap: 1rem;">
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Loading reviews...</p>
+      </div>
+
+      <!-- Review Form Popup Modal -->
+      <div id="review-modal" class="modal d-none">
+        <div class="modal-overlay"></div>
+        <div class="modal-container" style="max-width: 500px; padding: 1.5rem;">
+          <h3 style="margin-bottom: 1rem;">Write a Product Review</h3>
+          <form id="review-form">
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+              <label style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">Your Name *</label>
+              <input type="text" id="rev-name" class="form-control" required placeholder="e.g. John Smith">
+            </div>
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+              <label style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">Rating *</label>
+              <select id="rev-rating" class="form-control" style="background: var(--bg-primary); color: var(--text-primary);">
+                <option value="5">★★★★★ (5/5 Excellent)</option>
+                <option value="4">★★★★☆ (4/5 Very Good)</option>
+                <option value="3">★★★☆☆ (3/5 Good)</option>
+                <option value="2">★★☆☆☆ (2/5 Fair)</option>
+                <option value="1">★☆☆☆☆ (1/5 Poor)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+              <label style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">Title</label>
+              <input type="text" id="rev-title" class="form-control" placeholder="e.g. Fast shipping, works great!">
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <label style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem;">Review Comment *</label>
+              <textarea id="rev-comment" class="form-control" rows="3" required placeholder="Write your review here..."></textarea>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+              <button type="button" id="btn-cancel-review" class="btn-secondary" style="padding: 0.4rem 0.8rem;">Cancel</button>
+              <button type="submit" class="btn-primary" style="padding: 0.4rem 0.8rem;">Submit Review</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Footer -->
@@ -289,7 +345,20 @@
       <div class="cart-drawer-body" id="cart-items-container" style="flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
         <!-- Cart items populated by JS -->
       </div>
-      <div class="cart-drawer-footer" style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 1rem;">
+      <div class="cart-drawer-footer" style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem;">
+        <!-- Shipping Zone Selector & Threshold Notice -->
+        <div style="background: var(--bg-primary); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 0.85rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <span><i class="fa-solid fa-truck-fast highlight"></i> Destination:</span>
+            <select id="cart-shipping-zone" style="background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.8rem;">
+              <option value="zone1">Asia / HK / TW (Free > $50)</option>
+              <option value="zone2" selected>Europe / USA (Free > $150)</option>
+              <option value="zone3">Rest of World ($25 Flat)</option>
+            </select>
+          </div>
+          <div id="free-shipping-msg" style="color: var(--accent-color); font-weight: 500; font-size: 0.8rem;">Calculated at checkout</div>
+        </div>
+
         <div class="cart-subtotal-row" style="display: flex; justify-content: space-between; font-weight: 600; font-size: 1.1rem;">
           <span>Subtotal:</span>
           <span id="cart-subtotal-amount">$0.00</span>
