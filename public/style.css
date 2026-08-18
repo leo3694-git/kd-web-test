@@ -585,12 +585,12 @@ button, input, select, textarea {
 }
 
 .product-img-wrapper {
-  aspect-ratio: 1.1;
+  aspect-ratio: 1 / 1;
   background-color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: 0.75rem;
   position: relative;
   overflow: hidden;
 }
@@ -1979,12 +1979,14 @@ button, input, select, textarea {
 
 /* ===== RWD Responsive Design ===== */
 @media (max-width: 1200px) {
+  .products-grid,
   .product-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 1024px) {
+  .products-grid,
   .product-grid {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -1996,10 +1998,41 @@ button, input, select, textarea {
 }
 
 @media (max-width: 768px) {
+  .products-grid,
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-    padding: 0.75rem;
+    gap: 0.5rem;
+    padding: 0.25rem;
+  }
+  .product-card {
+    border-radius: var(--radius-md);
+  }
+  .product-img-wrapper {
+    aspect-ratio: 1 / 1;
+    padding: 0.4rem;
+  }
+  .product-info {
+    padding: 0.5rem 0.6rem;
+    gap: 0.25rem;
+  }
+  .product-title {
+    font-size: 0.8rem;
+    line-height: 1.25;
+    height: 2rem;
+    -webkit-line-clamp: 2;
+  }
+  .product-category {
+    font-size: 0.65rem;
+  }
+  .price-current {
+    font-size: 0.95rem;
+  }
+  .card-add-to-cart-btn {
+    width: 28px;
+    height: 28px;
+    bottom: 0.4rem;
+    right: 0.4rem;
+    font-size: 0.75rem;
   }
   .store-layout {
     flex-direction: column;
@@ -2055,16 +2088,41 @@ button, input, select, textarea {
 }
 
 @media (max-width: 480px) {
+  .products-grid,
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-    padding: 0.5rem;
+    gap: 0.4rem;
+    padding: 0.25rem;
   }
   .product-card {
     border-radius: var(--radius-sm);
   }
   .product-img-wrapper {
     aspect-ratio: 1 / 1;
+    padding: 0.35rem;
+  }
+  .product-info {
+    padding: 0.35rem 0.45rem;
+    gap: 0.15rem;
+  }
+  .product-title {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    height: 1.8rem;
+    -webkit-line-clamp: 2;
+  }
+  .product-category {
+    font-size: 0.6rem;
+  }
+  .price-current {
+    font-size: 0.85rem;
+  }
+  .card-add-to-cart-btn {
+    width: 24px;
+    height: 24px;
+    bottom: 0.3rem;
+    right: 0.3rem;
+    font-size: 0.65rem;
   }
   .detail-image-box {
     max-height: 260px;
